@@ -12,4 +12,4 @@ To Do
    1e) Backspace/delete button removes the most recent digit, Clear completely clears all data
    1f) Dividing by 0 returns "ERROR"
 2. Create button to toggle light/dark theme DONE
-3. Tweak color schemes for themes
+3. Tweak color schemes for themes/layout

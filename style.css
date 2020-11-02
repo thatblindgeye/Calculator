@@ -38,6 +38,8 @@ html {
 }
 
 .calculator-container {
+  display: flex;
+  flex-direction: column;
   width: 100vw;
   height: 100vh;
   background-color: var(--main-bg);
@@ -47,12 +49,10 @@ html {
 .display {
   display: flex;
   flex-direction: column;
-  justify-content: space-evenly;
+  justify-content: space-between;
   width: 95%;
-  margin: auto;
+  margin: 0 auto;
   padding: 5px;
-  background-color: var(--secondary-bg);
-  white-space: nowrap;
   overflow: auto;
 }
 
@@ -61,26 +61,25 @@ p {
 }
 
 .equation {
-  padding-top: 2px;
-  font-size: 1.2rem;
-  height: 25px;
+  padding-top: 5px;
+  font-size: 0.9rem;
+  opacity: 0.9;
+  white-space: nowrap;
 }
 
 .main-display {
-  padding: 5px 0;
-  font-size: 2.2rem;
+  font-size: 2.1rem;
+  padding: 10px 0 0;
 }
 
 .button-container {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: repeat(6, 1fr);
   justify-content: center;
   gap: 5px;
   width: 95%;
   height: 80%;
   margin: 20px auto 0;
-  padding: 5px;
 }
 
 .btn {
@@ -91,7 +90,7 @@ p {
   color: var(--main-font);
   border: 1px solid var(--border);
   border-radius: 10px;
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   font-weight: bold;
 }
 
@@ -118,26 +117,37 @@ p {
   grid-column: 2 / 4;
 }
 
-@media only screen and (min-width: 500px) {
+.shortcuts {
+  display: none;
+}
+
+@media only screen and (min-width: 450px) {
   body {
     background-color: var(--page-bg);
   }
 
+  .page-container {
+    display: flex;
+    flex-direction: column;
+  }
+
   .calculator-container {
-    width: 325px;
-    min-height: 520px;
-    margin: 50px auto;
+    width: 22rem;
+    height: 30rem;
+    margin: 50px auto 25px;
     border: 5px solid var(--border);
   }
 
   .display {
-    width: 300px;
+    width: 20.5rem;
+  }
+
+  .main-display {
+    font-size: 1.8rem;
   }
 
   .button-container {
-    gap: 5px;
-    width: 300px;
-    height: 390px;
+    width: 20.5rem;
     margin: 20px auto 0;
     padding: 0;
   }
@@ -149,5 +159,17 @@ p {
 
   .btn:active {
     transform: scale(0.95);
+  }
+
+  .shortcuts {
+    display: block;
+    width: 22rem;
+    margin: 0 auto 50px;
+  }
+
+  h1,
+  h1 ~ p {
+    color: var(--main-font);
+    font-size: 0.9rem;
   }
 }
