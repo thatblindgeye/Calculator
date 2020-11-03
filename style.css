@@ -46,7 +46,7 @@ html {
   padding: 10px 0;
 }
 
-.display {
+.display-container {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -58,11 +58,12 @@ html {
   scrollbar-width: none;
 }
 
-.display::-webkit-scrollbar {
+.display-container::-webkit-scrollbar {
   display: none;
 }
 
-p {
+input[type="text"] {
+  background-color: var(--main-bg);
   color: var(--main-font);
 }
 
@@ -151,7 +152,7 @@ p {
     border: 5px solid var(--border);
   }
 
-  .display {
+  .display-container {
     width: 18.5rem;
   }
 

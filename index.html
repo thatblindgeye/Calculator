@@ -11,9 +11,9 @@
   <body>
     <div class="page-container">
       <div class="calculator-container">
-        <div class="display">
-          <p class="equation"></p>
-          <p id="main-display">0</p>
+        <div class="display-container">
+          <input type="text" class="equation" readonly>
+          <input type="text" id="main-display" value="0" readonly>
         </div>
         <div class="button-container">
           <button type="button" class="clear btn">AC</button>
@@ -42,8 +42,7 @@
       <div class="shortcuts">
         <h1>Keyboard Shortcuts</h1>
         <p>All Clear: <kbd>C</kbd></p>
-        <p>Positive: <kbd>P</kbd></p>
-        <p>Negative: <kbd>N</kbd></p>
+        <p>Toggle Negative: <kbd>N</kbd></p>
         <p>Theme: <kbd>T</kbd></p>
       </div>
     </div>
