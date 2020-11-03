@@ -51,9 +51,15 @@ html {
   flex-direction: column;
   justify-content: space-between;
   width: 95%;
+  height: 100px;
   margin: 0 auto;
-  padding: 5px;
   overflow: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.display::-webkit-scrollbar {
+  display: none;
 }
 
 p {
@@ -61,15 +67,13 @@ p {
 }
 
 .equation {
-  padding-top: 5px;
-  font-size: 0.9rem;
+  font-size: 1.1rem;
   opacity: 0.9;
-  white-space: nowrap;
 }
 
-.main-display {
-  font-size: 2.1rem;
-  padding: 10px 0 0;
+#main-display {
+  font-size: 2.5rem;
+  padding: 5px 0 0;
 }
 
 .button-container {
@@ -90,8 +94,17 @@ p {
   color: var(--main-font);
   border: 1px solid var(--border);
   border-radius: 10px;
-  font-size: 1.2rem;
+  font-size: 1.5rem;
   font-weight: bold;
+}
+
+.btn:hover {
+  cursor: pointer;
+  transform: scale(1.05);
+}
+
+.btn:active {
+  transform: scale(0.95);
 }
 
 .operator,
@@ -132,44 +145,35 @@ p {
   }
 
   .calculator-container {
-    width: 22rem;
+    width: 20rem;
     height: 30rem;
     margin: 50px auto 25px;
     border: 5px solid var(--border);
   }
 
   .display {
-    width: 20.5rem;
+    width: 18.5rem;
   }
 
-  .main-display {
-    font-size: 1.8rem;
+  #main-display {
+    font-size: 2.2rem;
   }
 
   .button-container {
-    width: 20.5rem;
+    width: 18.5rem;
     margin: 20px auto 0;
     padding: 0;
   }
 
-  .btn:hover {
-    cursor: pointer;
-    transform: scale(1.05);
-  }
-
-  .btn:active {
-    transform: scale(0.95);
-  }
-
   .shortcuts {
     display: block;
-    width: 22rem;
+    width: 20rem;
     margin: 0 auto 50px;
   }
 
   h1,
   h1 ~ p {
     color: var(--main-font);
-    font-size: 0.9rem;
+    font-size: 1rem;
   }
 }
