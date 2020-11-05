@@ -1,11 +1,14 @@
 "use strict";
 
-let display = document.getElementById("main-display");
-let equation = document.querySelector(".equation");
+const display = document.getElementById("main-display");
+const equation = document.querySelector(".equation");
+const history = document.getElementById("history-container");
+let active = false; // determines if calculator is in an active operation
 let operandA = "";
 let operandB = "";
 let operator = "";
 let result = "";
+
 
 function add(operator, num1, num2) {
   return parseFloat(num1) + parseFloat(num2);
@@ -25,6 +28,78 @@ function divide(operator, num1, num2) {
 
 function multiply(operator, num1, num2) {
   return parseFloat(num1) * parseFloat(num2);
+}
+
+function inputNumber(e) {
+  if (display.value.length === 16) return;
+  if (active === false && result) clearAll();
+  if (e.button === 0) {
+    display.value += e.target.textContent;
+  } else {
+    display.value += e.key.replace(" ","");
+  }
+  if (display.value.startsWith("0") && !display.value.startsWith("0.")) {
+    display.value = display.value.slice(1);
+  } 
+}
+
+function inputOperator(e) {
+  if (result === "ERROR") return;
+  if (operandA && active) {
+    operate();
+    checkResult();
+    operandA = result;
+    operandB = display.value;
+    result = "";
+  } else {
+      operandA = display.value;
+      result = "";
+  }
+  if (e.button === 0) {
+      operator = e.target.textContent;
+      display.value = 0;
+  } else {
+      operator = e.key;
+      display.value = 0;
+  }
+  active = true;
+  equation.value = operandA + " " + operator;
+}
+
+function operate() {
+  if (result === "ERROR") return;
+  if (operandB === "" || operandA && operandB && active === true) {
+    operandB = display.value;
+  } else if (operandB && active === false) {
+    operandA = result;
+    result = "";
+  }
+  switch (operator) {
+    case "+":
+      result = add(operator, operandA, operandB);
+      break;
+    case "-":
+      result = subtract(operator, operandA, operandB);
+      break;
+    case "/":
+      result = divide(operator, operandA, operandB);
+      break;
+    case "*":
+      result = multiply(operator, operandA, operandB);
+      break;
+    default:
+      result = "ERROR";
+  }
+  equation.value = operandA + " " + operator + " " + operandB + " =";
+  addHistory();
+}
+
+function checkResult() {
+  if (isFinite(result) && result.toString().length > 16) {
+    display.value = result.toPrecision(1);
+  } else {
+      display.value = result;
+  }
 }
 
 function clearAll() {
@@ -47,6 +122,7 @@ function backspace() {
 
 function makePercent() {
   if (result === "ERROR") return;
+  equation.value = "";
   result = display.value / 100;
   if (result.toString().length > 16) {
     display.value = result.toPrecision(1);
@@ -61,74 +137,30 @@ function toggleNegative() {
 }
 
 function addDecimal() {
-  if (result === "ERROR") return;
-  if (display.value.includes(".")) return;
+  if (result === "ERROR" || display.value.includes(".")) return;
+  if (active === false && result) clearAll();
   display.value += ".";
-}
-
-function inputNumber(e) {
-  if (display.value.length === 16) return;
-  if (result) clearAll();
-  if (e.button === 0) {
-    display.value += e.target.textContent;
-  } else {
-    display.value += e.key.replace(" ","");
-  }
-  if (display.value.startsWith("0") && !display.value.startsWith("0.")) {
-    display.value = display.value.slice(1);
-  } 
-}
-
-function inputOperator(e) {
-  if (result === "ERROR") return;
-  operandA = display.value;
-  if (e.button === 0) {
-      operator = e.target.textContent;
-      equation.value = operandA + " " + operator;
-      display.value = 0;
-  } else {
-      operator = e.key;
-      equation.value = operandA + " " + operator;
-      display.value = 0;
-    }
-}
-
-function operate() {
-  if (result === "ERROR") return;
-  if (operandB === "") {
-    operandB = display.value;
-  } else {
-    operandA = display.value;
-  }
-  equation.value = operandA + " " + operator + " " + operandB + " =";
-  switch (operator) {
-    case "+":
-      result = add(operator, operandA, operandB);
-      break;
-    case "-":
-      result = subtract(operator, operandA, operandB);
-      break;
-    case "/":
-      result = divide(operator, operandA, operandB);
-      break;
-    case "*":
-      result = multiply(operator, operandA, operandB);
-      break;
-    default:
-      result = "ERROR";
-  }
-}
-
-function checkResult() {
-  if (isFinite(result) && result.toString().length > 16) {
-    display.value = result.toPrecision(1);
-  } else {
-      display.value = result;
-    }
 }
 
 function toggleTheme() {
   document.body.classList.toggle("light-theme");
+}
+
+function addHistory() {
+  let historyItems = document.getElementsByClassName("history-item");
+  let historyList = document.querySelector(".history-list");
+  let newHistory = document.createElement("p");
+  newHistory.className = "history-item";
+  newHistory.textContent = operandA + " " + operator + " " + operandB + " = " + result;
+  if (historyItems.length === 0) {
+    historyList.appendChild(newHistory);
+    console.log(historyItems);
+  } else if (historyItems.length < 20) {
+    historyList.insertBefore(newHistory, historyItems[0]);
+  } else {
+    historyList.removeChild(historyList.childNodes[20]);
+    historyList.insertBefore(newHistory, historyItems[0]);
+  }
 }
 
 
@@ -142,7 +174,6 @@ document.querySelectorAll(".digit").forEach(btn => {
 window.addEventListener("keydown", (e) => {
   if (isFinite(parseFloat(e.key))) {
     inputNumber(e);
-    console.log(typeof(e.key));
   }
 })
 
@@ -162,6 +193,7 @@ document.querySelector(".equal").addEventListener("click", () => {
   if (operandA === "") return;
   operate();
   checkResult();
+  active = false;
 })
 window.addEventListener("keydown", (e) => {
   if (e.key === "Enter") {
@@ -169,6 +201,7 @@ window.addEventListener("keydown", (e) => {
     if (operandA === "") return;
     operate();
     checkResult();
+    active = false;
   }
 })
 
@@ -179,7 +212,7 @@ window.addEventListener("keydown", (e) => {
   }
 })
 
-document.querySelector(".delete").addEventListener("click", backspace)
+document.querySelector(".backspace").addEventListener("click", backspace)
 window.addEventListener("keydown", (e) => {
   if (e.key === "Backspace") {
     e.preventDefault("Backspace"); // prevents browser from navigating back one page
@@ -212,5 +245,22 @@ document.querySelector(".theme").addEventListener("click", toggleTheme)
 window.addEventListener("keydown", (e) => {
   if (e.key === "t" || e.key === "T") {
     toggleTheme();
+  }
+})
+
+document.querySelector(".history").addEventListener("click", (e) => {
+  if (history.style.display === "flex") {
+    history.style.display = "none";
+  } else {
+    history.style.display = "flex";
+  }
+})
+window.addEventListener("keydown", (e) => {
+  if (e.key === "h" || e.key === "H") {
+    if (history.style.display === "flex") {
+      history.style.display = "none";
+    } else {
+      history.style.display = "flex";
+    }
   }
 })

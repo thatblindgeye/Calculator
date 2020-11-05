@@ -14,8 +14,8 @@ html {
   --main-bg: rgb(30, 30, 30);
   --secondary-bg: rgb(60, 60, 60);
   --tertiary-bg: rgb(90, 90, 90);
-  --red-bg: rgb(255, 163, 140);
-  --green-bg: rgb(140, 255, 163);
+  --delete-bg: rgb(255, 163, 140);
+  --equal-bg: rgb(140, 255, 163);
   --border: rgb(80, 80, 80);
   --main-font: rgba(233, 233, 233, 0.9);
   --secondary-font: rgb(0, 0, 0);
@@ -26,14 +26,16 @@ html {
   --main-bg: rgb(225, 225, 225);
   --secondary-bg: rgb(210, 210, 210);
   --tertiary-bg: rgb(190, 190, 190);
-  --red-bg: rgb(186, 41, 8);
-  --green-bg: rgb(0, 99, 115);
+  --delete-bg: rgb(186, 41, 8);
+  --equal-bg: rgb(0, 99, 115);
   --border: rgb(0, 0, 0);
   --main-font: rgb(0, 0, 0);
   --secondary-font: rgba(233, 233, 233, 0.9);
 }
 
 .page-container {
+  display: flex;
+  align-items: center;
   width: 100%;
 }
 
@@ -105,23 +107,55 @@ input[type="text"] {
 .percentage,
 .decimal,
 .pos-neg,
-.theme {
+.theme,
+.history {
   background-color: var(--tertiary-bg);
 }
 
 .equal {
-  background-color: var(--green-bg);
+  grid-row: 5 / 7;
+  grid-column: 4 / 5;
+  background-color: var(--equal-bg);
   color: var(--secondary-font);
 }
 
 .clear,
-.delete {
-  background-color: var(--red-bg);
+.backspace {
+  background-color: var(--delete-bg);
   color: var(--secondary-font);
 }
 
 .theme {
+  grid-column: 1 / 2;
+}
+
+.history {
   grid-column: 2 / 4;
+  z-index: 2;
+}
+
+#history-container {
+  display: none;
+  flex-direction: column;
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  top: 0;
+  background-color: var(--secondary-bg);
+  border: var(--border);
+  padding: 10px 0;
+}
+
+.history-list {
+  width: 100vw;
+  height: 79vh;
+  overflow-y: auto;
+}
+
+.history-list > p {
+  padding: 0 10px 25px;
+  font-size: 1.5rem;
+  color: var(--main-font);
 }
 
 .shortcuts {
@@ -153,6 +187,17 @@ input[type="text"] {
     width: 18.5rem;
     margin: 20px auto 0;
     padding: 0;
+  }
+
+  #history-container {
+    width: 19.5rem;
+    height: 29.4rem;
+    top: 55px;
+  }
+
+  .history-list {
+    width: 100%;
+    height: 24.5rem;
   }
 
   .shortcuts {
