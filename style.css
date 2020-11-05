@@ -51,15 +51,8 @@ html {
   flex-direction: column;
   justify-content: space-between;
   width: 95%;
-  height: 100px;
+  min-height: 100px;
   margin: 0 auto;
-  overflow: auto;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-.display-container::-webkit-scrollbar {
-  display: none;
 }
 
 input[type="text"] {
@@ -68,8 +61,8 @@ input[type="text"] {
 }
 
 .equation {
-  font-size: 1.1rem;
-  opacity: 0.9;
+  font-size: 1.5rem;
+  opacity: 0.8;
 }
 
 #main-display {
@@ -156,10 +149,6 @@ input[type="text"] {
     width: 18.5rem;
   }
 
-  #main-display {
-    font-size: 2.2rem;
-  }
-
   .button-container {
     width: 18.5rem;
     margin: 20px auto 0;
@@ -175,6 +164,9 @@ input[type="text"] {
   h1,
   h1 ~ p {
     color: var(--main-font);
-    font-size: 1rem;
+  }
+
+  h1 {
+    font-size: 1.5rem;
   }
 }
