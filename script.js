@@ -30,49 +30,72 @@ function multiply(operator, num1, num2) {
 }
 
 function inputNumber(e) {
-  if (display.value.replace(".", "").length === 16) return;
-  if (active === false && result !== "") clearAll();
-  if (e.button === 0) {
-    display.value += e.target.textContent;
-  } else {
-    display.value += e.key;
+  if (active === false && result) clearAll(); // clears after using =/Enter followed by a digit
+  if (display.value.replace(".", "").length < 15) {
+    if (e.button === 0) {
+      display.value += e.target.textContent;
+    } else {
+      display.value += e.key;
+    }
   }
-  if (display.value.startsWith("0") && !display.value.startsWith("0.")) {
+  if (display.value.startsWith("0") && !display.value.includes(".") && display.value.length > 1) {
     display.value = display.value.slice(1);
+  }
+  resizeFont();
+}
+
+function resizeFont() {
+  let displaySize = 2.5;
+  let defaultWidth = document.querySelector(".display-container").scrollWidth;
+  display.style.fontSize = (`${displaySize}` + "rem").toString()
+  if (display.scrollWidth > defaultWidth) {
+    while (display.scrollWidth > defaultWidth) {
+      displaySize = (displaySize - 0.1).toFixed(2);
+      display.style.fontSize = (`${displaySize}` + "rem").toString()
+    }
+  }
+}
+
+function checkOperands(e) {
+  if (result === "ERROR" || display.value === "") return;
+  if (e.target.textContent !== "=" && e.key !== "Enter") {
+    if (operandA && active) {
+      operandB = display.value;
+      operate();
+      checkResult();
+      operandA = result;
+      result = "";
+    } else {
+        operandA = display.value;
+        result = "";
+    }
+  } else {
+    if (operandB === "" || operandA && operandB && active) {
+      operandB = display.value;
+    } else if (operandB && active === false) {
+      operandA = result;
+      result = "";
+    }
   }
 }
 
 function inputOperator(e) {
-  if (result === "ERROR") return;
-  if (operandA && active) {
-    operate();
-    checkResult();
-    operandA = result;
-    operandB = display.value;
-    result = "";
-  } else {
-      operandA = display.value;
-      result = "";
-  }
+  if (result === "ERROR" || operandA === "" && display.value === "") return;
   if (e.button === 0) {
       operator = e.target.textContent;
-      display.value = 0;
   } else {
       operator = e.key;
-      display.value = 0;
   }
+  if (display.value !== "") {
+    display.placeholder = display.value;
+  }
+  display.value = "";
   active = true;
-  equation.value = operandA + " " + operator;
+  equation.textContent = operandA + " " + operator;
 }
 
 function operate() {
   if (result === "ERROR") return;
-  if (operandB === "" || operandA && operandB && active) {
-    operandB = display.value;
-  } else if (operandB && active === false) {
-    operandA = result;
-    result = "";
-  }
   switch (operator) {
     case "+":
       result = add(operator, operandA, operandB);
@@ -89,56 +112,62 @@ function operate() {
     default:
       result = "ERROR";
   }
-  equation.value = operandA + " " + operator + " " + operandB + " =";
-  addHistory();
+  equation.textContent = operandA + " " + operator + " " + operandB + " =";
 }
 
 function checkResult() {
   if (isFinite(result) && result.toString().includes(".")) {
-    display.value = result = parseFloat(result.toFixed(2));
+    display.value = result = parseFloat(result.toFixed(5));
   } 
   if (result.toString().length > 16) {
     display.value = result = "ERROR";
   } else {
       display.value = result;
   }
+  resizeFont();
+  addHistory();
 }
 
 function clearAll() {
-  display.value = "0";
-  equation.value = "";
+  display.value = "";
+  display.placeholder = "0";
+  equation.textContent = "";
   operandA = "";
   operandB = "";
   operator = "";
   result = "";
+  resizeFont();
 }
 
 function backspace() {
   if (result) return;
   if (display.value.length === 1) {
-    display.value = 0;
+    display.value = "";
+    display.placeholder = "0";
   } else {
     display.value = display.value.slice(0, (display.value.length - 1));
   }
+  resizeFont();
 }
 
 function makePercent() {
-  if (result === "ERROR") return;
+  if (result === "ERROR" || !display.value) return;
   operandA = display.value;
   operator = "%";
-  result = parseFloat((operandA / 100).toFixed(16));
-  equation.value = "";
+  operandB = "";
+  result = operandA / 100;
   display.value = result;
+  equation.textContent = "";
   addHistory();
 }
 
 function toggleNegative() {
-  if (result === "ERROR") return;
+  if (result === "ERROR" || !display.value) return;
   display.value *= -1;
 }
 
 function addDecimal() {
-  if (result === "ERROR" || display.value.includes(".")) return;
+  if (result === "ERROR" || !display.value || display.value.includes(".")) return;
   if (active === false && result) clearAll();
   display.value += ".";
 }
@@ -151,9 +180,11 @@ function toggleHistory() {
   if (document.getElementById("history-container").style.display === "flex") {
     document.getElementById("history-container").style.display = "none";
     document.querySelector(".history").innerHTML = "History";
+    document.querySelector(".history").blur();
   } else {
     document.getElementById("history-container").style.display = "flex";
     document.querySelector(".history").innerHTML = "Close";
+    document.querySelector(".history").focus();
   }
 }
 
@@ -165,7 +196,6 @@ function addHistory() {
   newHistory.textContent = operandA + " " + operator + " " + operandB + " = " + result;
   if (historyItems.length === 0) {
     historyList.appendChild(newHistory);
-    console.log(historyItems);
   } else if (historyItems.length < 20) {
     historyList.insertBefore(newHistory, historyItems[0]);
   } else {
@@ -187,17 +217,22 @@ window.addEventListener("keydown", (e) => {
 })
 
 document.querySelectorAll(".operator").forEach((btn) => {
-  btn.addEventListener("click", inputOperator)
+  btn.addEventListener("click", (e) => {
+    checkOperands(e);
+    inputOperator(e);
+  })
 })
 window.addEventListener("keydown", (e) => {
   if (e.key === "+" || e.key === "-" || e.key === "*" || e.key === "/") {
     e.preventDefault("/"); // prevents Quick Find from launching in Firefox
+    checkOperands(e);
     inputOperator(e);
   }
 })
 
-document.querySelector(".equal").addEventListener("click", () => {
-  if (operandA === "") return;
+document.querySelector(".equal").addEventListener("click", (e) => {
+  if (operandA === "" || display.value === "" || operator === "") return;
+  checkOperands(e);
   operate();
   checkResult();
   active = false;
@@ -205,7 +240,8 @@ document.querySelector(".equal").addEventListener("click", () => {
 window.addEventListener("keydown", (e) => {
   if (e.key === "Enter") {
     e.preventDefault("Enter"); // prevents duplicate input if a button has focus from a mouse click
-    if (operandA === "") return;
+    if (operandA === "" || display.value === "" || operator === "") return;
+    checkOperands(e);
     operate();
     checkResult();
     active = false;
@@ -241,12 +277,18 @@ window.addEventListener("keydown", (e) => {
   }
 })
 
-document.querySelector(".percentage").addEventListener("click", () => {
+document.querySelector(".percentage").addEventListener("click", (e) => {
+  if (operandA && operator && display.value) {
+    checkOperands(e);
+  }
   makePercent();
   operator = "";
 })
 window.addEventListener("keydown", (e) => {
   if (e.key === "%") {
+    if (operandA && operator && display.value) {
+      checkOperands(e);
+    }
     makePercent();
     operator = "";
   }
