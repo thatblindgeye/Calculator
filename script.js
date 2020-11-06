@@ -2,7 +2,6 @@
 
 const display = document.getElementById("main-display");
 const equation = document.querySelector(".equation");
-const history = document.getElementById("history-container");
 let active = false; // determines if calculator is in an active operation
 let operandA = "";
 let operandB = "";
@@ -31,16 +30,16 @@ function multiply(operator, num1, num2) {
 }
 
 function inputNumber(e) {
-  if (display.value.length === 16) return;
-  if (active === false && result) clearAll();
+  if (display.value.replace(".", "").length === 16) return;
+  if (active === false && result !== "") clearAll();
   if (e.button === 0) {
     display.value += e.target.textContent;
   } else {
-    display.value += e.key.replace(" ","");
+    display.value += e.key;
   }
   if (display.value.startsWith("0") && !display.value.startsWith("0.")) {
     display.value = display.value.slice(1);
-  } 
+  }
 }
 
 function inputOperator(e) {
@@ -68,7 +67,7 @@ function inputOperator(e) {
 
 function operate() {
   if (result === "ERROR") return;
-  if (operandB === "" || operandA && operandB && active === true) {
+  if (operandB === "" || operandA && operandB && active) {
     operandB = display.value;
   } else if (operandB && active === false) {
     operandA = result;
@@ -95,8 +94,11 @@ function operate() {
 }
 
 function checkResult() {
-  if (isFinite(result) && result.toString().length > 16) {
-    display.value = result.toPrecision(1);
+  if (isFinite(result) && result.toString().includes(".")) {
+    display.value = result = parseFloat(result.toFixed(2));
+  } 
+  if (result.toString().length > 16) {
+    display.value = result = "ERROR";
   } else {
       display.value = result;
   }
@@ -122,13 +124,12 @@ function backspace() {
 
 function makePercent() {
   if (result === "ERROR") return;
+  operandA = display.value;
+  operator = "%";
+  result = parseFloat((operandA / 100).toFixed(16));
   equation.value = "";
-  result = display.value / 100;
-  if (result.toString().length > 16) {
-    display.value = result.toPrecision(1);
-  } else {
-    display.value = result;
-  }
+  display.value = result;
+  addHistory();
 }
 
 function toggleNegative() {
@@ -144,6 +145,16 @@ function addDecimal() {
 
 function toggleTheme() {
   document.body.classList.toggle("light-theme");
+}
+
+function toggleHistory() {
+  if (document.getElementById("history-container").style.display === "flex") {
+    document.getElementById("history-container").style.display = "none";
+    document.querySelector(".history").innerHTML = "History";
+  } else {
+    document.getElementById("history-container").style.display = "flex";
+    document.querySelector(".history").innerHTML = "Close";
+  }
 }
 
 function addHistory() {
@@ -167,9 +178,7 @@ function addHistory() {
 window.addEventListener("load", clearAll)
 
 document.querySelectorAll(".digit").forEach(btn => {
-  btn.addEventListener("click", (e) => {
-    inputNumber(e);
-  })
+  btn.addEventListener("click", inputNumber)
 })
 window.addEventListener("keydown", (e) => {
   if (isFinite(parseFloat(e.key))) {
@@ -178,9 +187,7 @@ window.addEventListener("keydown", (e) => {
 })
 
 document.querySelectorAll(".operator").forEach((btn) => {
-  btn.addEventListener("click", (e) => {
-    inputOperator(e);
-  })
+  btn.addEventListener("click", inputOperator)
 })
 window.addEventListener("keydown", (e) => {
   if (e.key === "+" || e.key === "-" || e.key === "*" || e.key === "/") {
@@ -234,10 +241,14 @@ window.addEventListener("keydown", (e) => {
   }
 })
 
-document.querySelector(".percentage").addEventListener("click", makePercent)
+document.querySelector(".percentage").addEventListener("click", () => {
+  makePercent();
+  operator = "";
+})
 window.addEventListener("keydown", (e) => {
   if (e.key === "%") {
     makePercent();
+    operator = "";
   }
 })
 
@@ -248,19 +259,9 @@ window.addEventListener("keydown", (e) => {
   }
 })
 
-document.querySelector(".history").addEventListener("click", (e) => {
-  if (history.style.display === "flex") {
-    history.style.display = "none";
-  } else {
-    history.style.display = "flex";
-  }
-})
+document.querySelector(".history").addEventListener("click", toggleHistory)
 window.addEventListener("keydown", (e) => {
   if (e.key === "h" || e.key === "H") {
-    if (history.style.display === "flex") {
-      history.style.display = "none";
-    } else {
-      history.style.display = "flex";
-    }
+    toggleHistory();
   }
 })
