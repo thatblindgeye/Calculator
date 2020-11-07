@@ -13,30 +13,30 @@
       <div class="calculator-container">
         <div class="display-container">
           <p class="equation"></p>
-          <input type="text" id="main-display" placeholder="0" readonly>
+          <input type="text" id="main-display" placeholder="0" readonly autofocus>
         </div>
         <div class="button-container">
-          <button type="button" class="clear btn">AC</button>
+          <button type="button" class="clear btn" title="All Clear">AC</button>
           <button type="button" class="backspace btn"><i class="material-icons">backspace</i></button>
-          <button type="button" class="percentage btn">%</button>
-          <button type="button" class="divide btn operator">/</button>
+          <button type="button" class="percentage btn" title="Percentage">%</button>
+          <button type="button" class="divide btn operator" title="Divided by">/</button>
           <button type="button" class="seven btn digit">7</button>
           <button type="button" class="eight btn digit">8</button>
           <button type="button" class="nine btn digit">9</button>
-          <button type="button" class="multiply btn operator">*</button>
+          <button type="button" class="multiply btn operator" title="Multiplied by">*</button>
           <button type="button" class="four btn digit">4</button>
           <button type="button" class="five btn digit">5</button>
           <button type="button" class="six btn digit">6</button>
-          <button type="button" class="subtract btn operator">-</button>
+          <button type="button" class="subtract btn operator" title="Minus">-</button>
           <button type="button" class="one btn digit">1</button>
           <button type="button" class="two btn digit">2</button>
           <button type="button" class="three btn digit">3</button>
-          <button type="button" class="add btn operator">+</button>
-          <button type="button" class="pos-neg btn">+/-</button>
+          <button type="button" class="add btn operator" title="Plus">+</button>
+          <button type="button" class="pos-neg btn" title="Positive/Negative">+/-</button>
           <button type="button" class="zero btn digit">0</button>
-          <button type="button" class="decimal btn">.</button>
+          <button type="button" class="decimal btn" title="Decimal">.</button>
           <button type="button" class="equal btn">=</button>
-          <button type="button" class="theme btn"><i class="material-icons">wb_sunny</i></button>
+          <button type="button" class="theme btn" title="Theme toggle"><i class="material-icons" title="Theme toggle">wb_sunny</i></button>
           <button type="button" class="history btn">History</button>
         </div>
       </div>
@@ -53,8 +53,10 @@
       </div>
       <footer>
         <nav class="footer">
-          <p><i>Click the eye-con below to check out my other projects on GitHub!</i></p>
-          <a href="https://github.com/thatblindgeye"><img src="images/profile-icon.png" class="profile-icon" alt="an image of an eye with a purple iris"></a>
+          <p><i>Click the eye-con below to check out my other projects on GitHub!
+          <br>
+          (opens in a new tab)</i></p>
+          <a href="https://github.com/thatblindgeye" title="Go to my GitHub" target="_blank"><img src="images/profile-icon.png" class="profile-icon" alt="an image of an eye with a purple iris"></a>
         </nav>
       </footer>
     </div>

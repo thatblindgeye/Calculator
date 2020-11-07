@@ -278,23 +278,28 @@ footer {
   h1 {
     font-size: 1.5rem;
   }
-}
 
-footer {
-  display: block;
-  width: 100%;
-  margin-bottom: 10px;
-}
+  footer {
+    display: block;
+    width: 100%;
+  }
 
-.footer > p {
-  color: var(--main-font);
-  text-align: center;
-}
+  .footer > p {
+    color: var(--main-font);
+    font-size: 0.9rem;
+    text-align: center;
+  }
 
-.profile-icon,
-.footer > a {
-  display: block;
-  width: 100px;
-  height: auto;
-  margin: auto;
+  .profile-icon,
+  a {
+    display: block;
+    width: 100px;
+    height: auto;
+    margin: auto;
+    transition: transform 0.1s;
+  }
+
+  .profile-icon:hover {
+    transform: scale(1.1);
+  }
 }

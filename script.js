@@ -33,11 +33,9 @@ function resizeFont() {
   let size = 2.5;
   let defaultWidth = document.querySelector(".display-container").scrollWidth;
   display.style.fontSize = (`${size}` + "rem").toString()
-  if (display.scrollWidth > defaultWidth) {
-    while (display.scrollWidth > defaultWidth) {
-      size = (size - 0.1).toFixed(2);
-      display.style.fontSize = (`${size}` + "rem").toString()
-    }
+  while (display.scrollWidth > defaultWidth) {
+    size = (size - 0.1).toFixed(2);
+    display.style.fontSize = (`${size}` + "rem").toString()
   }
 }
 
@@ -71,7 +69,7 @@ function addHistory() {
 
 function inputNumber(e) {
   let inputType;
-  if (active === false && result) clearAll(); // clears after using =/Enter followed by a digit
+  if (active === false && result !== "") clearAll(); // clears after using =/Enter followed by a digit
   if (display.value.replace(".", "").length < 15) {
     inputType = e.button === 0 ? display.value += e.target.textContent : display.value += e.key;
   }
@@ -81,11 +79,11 @@ function inputNumber(e) {
   resizeFont();
 }
 
-// assigns operand variables depending on whether operator button/key is pressed or =/Enter is
+// assigns operands depending on whether operator button/key is pressed or =/Enter is
 function checkOperands(e) {
   if (result.toString().includes("ERROR") || display.value === "") return;
   if (e.target.textContent !== "=" && e.key !== "Enter") {
-    // when stringing operations without pressing =/Enter, i.e. 1 + 2 + 3 + 4
+    // when stringing operations without pressing =/Enter, i.e. 1 + 2 + 3...
     if (operandA && active) {
       operandB = display.value;
       operate();
@@ -97,7 +95,7 @@ function checkOperands(e) {
         result = "";
     }
   } else {
-    // new operation or after pressing  =/Enter following strung operations, i.e. 1 + 2 + 3 =
+    // for new operation or after pressing  =/Enter following strung operations, i.e. 1 + 2 + 3 =
     if (operandB === "" || operandA && operandB && active) {
       operandB = display.value;
       // pressing operator key/button after having pressed =/Enter, i.e. 1 + 2 = 3 +
@@ -109,12 +107,9 @@ function checkOperands(e) {
 }
 
 function inputOperator(e) {
+  let inputType;
   if (result.toString().includes("ERROR") || operandA === "" && display.value === "") return;
-  if (e.button === 0) {
-      operator = e.target.textContent;
-  } else {
-      operator = e.key;
-  }
+  inputType = e.button === 0 ? operator = e.target.textContent : operator = e.key;
   display.value = "";
   active = true;
   equation.textContent = operandA + " " + operator;
@@ -142,9 +137,16 @@ function operate() {
 }
 
 function checkResult() {
-  if (result.toString().includes(".") || isFinite(result) && result.toString().length > 16) {
-    display.value = result = parseFloat(result.toFixed(5));
+  let resultArray;
+  let roundedResult;
+  if (isFinite(result) && result.toString().length > 16) {
+    result = result.toPrecision(5);
   }
+  if (isFinite(result) && result.toString().includes("e")) {
+    resultArray = result.toString().split("e");
+    roundedResult = parseFloat(Number(resultArray[0]).toFixed(10));
+    result = roundedResult + "e" + resultArray[1];
+  } 
   display.value = result;
   resizeFont();
   addHistory();
@@ -178,8 +180,8 @@ function makePercent() {
   operator = "%";
   operandB = "";
   result = parseFloat(operandA / 100);
-  display.value = result;
   equation.textContent = "";
+  checkResult();
   resizeFont();
   addHistory();
 }
