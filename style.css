@@ -10,7 +10,7 @@
   padding: 0;
   border: 0;
   font-size: 100%;
-  font-family: Verdana;
+  font-family: Verdana, sans-serif;
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
 }
@@ -89,7 +89,11 @@ html {
 
 .equation {
   font-size: 1.5rem;
-  opacity: 0.8;
+  opacity: 0.6;
+  overflow-x: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  text-overflow: ellipsis;
 }
 
 #main-display {
@@ -199,6 +203,7 @@ html {
 .history-list {
   width: 100vw;
   height: 79vh;
+  border-bottom: 2px solid var(--border);
   overflow-y: auto;
 }
 
@@ -209,6 +214,10 @@ html {
 }
 
 .shortcuts {
+  display: none;
+}
+
+footer {
   display: none;
 }
 
@@ -269,4 +278,23 @@ html {
   h1 {
     font-size: 1.5rem;
   }
+}
+
+footer {
+  display: block;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.footer > p {
+  color: var(--main-font);
+  text-align: center;
+}
+
+.profile-icon,
+.footer > a {
+  display: block;
+  width: 100px;
+  height: auto;
+  margin: auto;
 }

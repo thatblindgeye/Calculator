@@ -19,7 +19,7 @@ function subtract(operator, num1, num2) {
 
 function divide(operator, num1, num2) {
   if (num2 === "0") {
-    return "ERROR";
+    return "ERROR: division by zero";
   } else {
     return parseFloat(num1) / parseFloat(num2);
   }
@@ -29,151 +29,16 @@ function multiply(operator, num1, num2) {
   return parseFloat(num1) * parseFloat(num2);
 }
 
-function inputNumber(e) {
-  if (active === false && result) clearAll(); // clears after using =/Enter followed by a digit
-  if (display.value.replace(".", "").length < 15) {
-    if (e.button === 0) {
-      display.value += e.target.textContent;
-    } else {
-      display.value += e.key;
-    }
-  }
-  if (display.value.startsWith("0") && !display.value.includes(".") && display.value.length > 1) {
-    display.value = display.value.slice(1);
-  }
-  resizeFont();
-}
-
 function resizeFont() {
-  let displaySize = 2.5;
+  let size = 2.5;
   let defaultWidth = document.querySelector(".display-container").scrollWidth;
-  display.style.fontSize = (`${displaySize}` + "rem").toString()
+  display.style.fontSize = (`${size}` + "rem").toString()
   if (display.scrollWidth > defaultWidth) {
     while (display.scrollWidth > defaultWidth) {
-      displaySize = (displaySize - 0.1).toFixed(2);
-      display.style.fontSize = (`${displaySize}` + "rem").toString()
+      size = (size - 0.1).toFixed(2);
+      display.style.fontSize = (`${size}` + "rem").toString()
     }
   }
-}
-
-function checkOperands(e) {
-  if (result === "ERROR" || display.value === "") return;
-  if (e.target.textContent !== "=" && e.key !== "Enter") {
-    if (operandA && active) {
-      operandB = display.value;
-      operate();
-      checkResult();
-      operandA = result;
-      result = "";
-    } else {
-        operandA = display.value;
-        result = "";
-    }
-  } else {
-    if (operandB === "" || operandA && operandB && active) {
-      operandB = display.value;
-    } else if (operandB && active === false) {
-      operandA = result;
-      result = "";
-    }
-  }
-}
-
-function inputOperator(e) {
-  if (result === "ERROR" || operandA === "" && display.value === "") return;
-  if (e.button === 0) {
-      operator = e.target.textContent;
-  } else {
-      operator = e.key;
-  }
-  if (display.value !== "") {
-    display.placeholder = display.value;
-  }
-  display.value = "";
-  active = true;
-  equation.textContent = operandA + " " + operator;
-}
-
-function operate() {
-  if (result === "ERROR") return;
-  switch (operator) {
-    case "+":
-      result = add(operator, operandA, operandB);
-      break;
-    case "-":
-      result = subtract(operator, operandA, operandB);
-      break;
-    case "/":
-      result = divide(operator, operandA, operandB);
-      break;
-    case "*":
-      result = multiply(operator, operandA, operandB);
-      break;
-    default:
-      result = "ERROR";
-  }
-  equation.textContent = operandA + " " + operator + " " + operandB + " =";
-}
-
-function checkResult() {
-  if (isFinite(result) && result.toString().includes(".")) {
-    display.value = result = parseFloat(result.toFixed(5));
-  } 
-  if (result.toString().length > 16) {
-    display.value = result = "ERROR";
-  } else {
-      display.value = result;
-  }
-  resizeFont();
-  addHistory();
-}
-
-function clearAll() {
-  display.value = "";
-  display.placeholder = "0";
-  equation.textContent = "";
-  operandA = "";
-  operandB = "";
-  operator = "";
-  result = "";
-  resizeFont();
-}
-
-function backspace() {
-  if (result) return;
-  if (display.value.length === 1) {
-    display.value = "";
-    display.placeholder = "0";
-  } else {
-    display.value = display.value.slice(0, (display.value.length - 1));
-  }
-  resizeFont();
-}
-
-function makePercent() {
-  if (result === "ERROR" || !display.value) return;
-  operandA = display.value;
-  operator = "%";
-  operandB = "";
-  result = operandA / 100;
-  display.value = result;
-  equation.textContent = "";
-  addHistory();
-}
-
-function toggleNegative() {
-  if (result === "ERROR" || !display.value) return;
-  display.value *= -1;
-}
-
-function addDecimal() {
-  if (result === "ERROR" || !display.value || display.value.includes(".")) return;
-  if (active === false && result) clearAll();
-  display.value += ".";
-}
-
-function toggleTheme() {
-  document.body.classList.toggle("light-theme");
 }
 
 function toggleHistory() {
@@ -202,6 +67,136 @@ function addHistory() {
     historyList.removeChild(historyList.childNodes[20]);
     historyList.insertBefore(newHistory, historyItems[0]);
   }
+}
+
+function inputNumber(e) {
+  let inputType;
+  if (active === false && result) clearAll(); // clears after using =/Enter followed by a digit
+  if (display.value.replace(".", "").length < 15) {
+    inputType = e.button === 0 ? display.value += e.target.textContent : display.value += e.key;
+  }
+  if (display.value.startsWith("0") && !display.value.includes(".") && display.value.length > 1) {
+    display.value = display.value.slice(1);
+  }
+  resizeFont();
+}
+
+// assigns operand variables depending on whether operator button/key is pressed or =/Enter is
+function checkOperands(e) {
+  if (result.toString().includes("ERROR") || display.value === "") return;
+  if (e.target.textContent !== "=" && e.key !== "Enter") {
+    // when stringing operations without pressing =/Enter, i.e. 1 + 2 + 3 + 4
+    if (operandA && active) {
+      operandB = display.value;
+      operate();
+      checkResult();
+      operandA = result;
+      result = "";
+    } else {
+        operandA = display.value;
+        result = "";
+    }
+  } else {
+    // new operation or after pressing  =/Enter following strung operations, i.e. 1 + 2 + 3 =
+    if (operandB === "" || operandA && operandB && active) {
+      operandB = display.value;
+      // pressing operator key/button after having pressed =/Enter, i.e. 1 + 2 = 3 +
+    } else if (operandB && active === false) {
+      operandA = result;
+      result = "";
+    }
+  }
+}
+
+function inputOperator(e) {
+  if (result.toString().includes("ERROR") || operandA === "" && display.value === "") return;
+  if (e.button === 0) {
+      operator = e.target.textContent;
+  } else {
+      operator = e.key;
+  }
+  display.value = "";
+  active = true;
+  equation.textContent = operandA + " " + operator;
+}
+
+function operate() {
+  if (result.toString().includes("ERROR")) return;
+  switch (operator) {
+    case "+":
+      result = add(operator, operandA, operandB);
+      break;
+    case "-":
+      result = subtract(operator, operandA, operandB);
+      break;
+    case "/":
+      result = divide(operator, operandA, operandB);
+      break;
+    case "*":
+      result = multiply(operator, operandA, operandB);
+      break;
+    default:
+      result = "ERROR: unknown";
+  }
+  equation.textContent = operandA + " " + operator + " " + operandB + " =";
+}
+
+function checkResult() {
+  if (result.toString().includes(".") || isFinite(result) && result.toString().length > 16) {
+    display.value = result = parseFloat(result.toFixed(5));
+  }
+  display.value = result;
+  resizeFont();
+  addHistory();
+}
+
+function clearAll() {
+  display.value = "";
+  display.placeholder = "0";
+  equation.textContent = "";
+  operandA = "";
+  operandB = "";
+  operator = "";
+  result = "";
+  resizeFont();
+}
+
+function backspace() {
+  if (result) return;
+  if (display.value.length === 1) {
+    display.value = "";
+    display.placeholder = "0";
+  } else {
+    display.value = display.value.slice(0, (display.value.length - 1));
+  }
+  resizeFont();
+}
+
+function makePercent() {
+  if (result.toString().includes("ERROR") || !display.value) return;
+  operandA = display.value;
+  operator = "%";
+  operandB = "";
+  result = parseFloat(operandA / 100);
+  display.value = result;
+  equation.textContent = "";
+  resizeFont();
+  addHistory();
+}
+
+function toggleNegative() {
+  if (result.toString().includes("ERROR") || !display.value) return;
+  display.value *= -1;
+}
+
+function addDecimal() {
+  if (result.toString().includes("ERROR") || !display.value || display.value.includes(".")) return;
+  if (active === false && result) clearAll();
+  display.value += ".";
+}
+
+function toggleTheme() {
+  document.body.classList.toggle("light-theme");
 }
 
 
