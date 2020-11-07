@@ -304,3 +304,9 @@ window.addEventListener("keydown", (e) => {
     toggleHistory();
   }
 })
+
+document.querySelector("a").addEventListener("keydown", (e) => {
+    if (e.ctrlKey && e.key === "Enter") {
+        window.open(e.target.href, "_self");
+    }
+})
