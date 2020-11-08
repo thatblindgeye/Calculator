@@ -69,7 +69,8 @@ function addHistory() {
 
 function inputNumber(e) {
   let inputType;
-  if (active === false && result !== "") clearAll(); // clears after using =/Enter followed by a digit
+  // clears after pressing =/Enter followed by a digit
+  if (active === false && result !== "") clearAll();
   if (display.value.replace(".", "").length < 15) {
     inputType = e.button === 0 ? display.value += e.target.textContent : display.value += e.key;
   }
@@ -83,7 +84,7 @@ function inputNumber(e) {
 function checkOperands(e) {
   if (result.toString().includes("ERROR") || display.value === "") return;
   if (e.target.textContent !== "=" && e.key !== "Enter") {
-    // when stringing operations without pressing =/Enter, i.e. 1 + 2 + 3...
+    // stringing operations without pressing =/Enter, i.e. 1 + 2 + 3...
     if (operandA && active) {
       operandB = display.value;
       operate();
@@ -95,10 +96,10 @@ function checkOperands(e) {
         result = "";
     }
   } else {
-    // for new operation or after pressing  =/Enter following strung operations, i.e. 1 + 2 + 3 =
+    // new operation or after pressing  =/Enter following strung operations, i.e. 1 + 2 + 3 =...
     if (operandB === "" || operandA && operandB && active) {
       operandB = display.value;
-      // pressing operator key/button after having pressed =/Enter, i.e. 1 + 2 = 3 +
+      // pressing operator key/button after having pressed =/Enter, i.e. 1 + 2 = 3 +...
     } else if (operandB && active === false) {
       operandA = result;
       result = "";
@@ -140,7 +141,7 @@ function checkResult() {
   let resultArray;
   let roundedResult;
   if (isFinite(result) && result.toString().length > 16) {
-    result = result.toPrecision(5);
+    result = result.toExponential();
   }
   if (isFinite(result) && result.toString().includes("e")) {
     resultArray = result.toString().split("e");
@@ -153,8 +154,7 @@ function checkResult() {
 }
 
 function clearAll() {
-  display.value = "";
-  display.placeholder = "0";
+  display.value = "0";
   equation.textContent = "";
   operandA = "";
   operandB = "";
@@ -166,8 +166,7 @@ function clearAll() {
 function backspace() {
   if (result) return;
   if (display.value.length === 1) {
-    display.value = "";
-    display.placeholder = "0";
+    display.value = "0";
   } else {
     display.value = display.value.slice(0, (display.value.length - 1));
   }
@@ -183,7 +182,6 @@ function makePercent() {
   equation.textContent = "";
   checkResult();
   resizeFont();
-  addHistory();
 }
 
 function toggleNegative() {

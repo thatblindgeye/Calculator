@@ -125,19 +125,14 @@ html {
   -webkit-box-pack: center;
   -ms-flex-pack: center;
   justify-content: center;
-  background-color: var(--secondary-bg);
   color: var(--main-font);
   border: 1px solid var(--border);
-  border-radius: 10px;
   font-size: 1.7rem;
   font-weight: bold;
 }
 
 .btn:hover {
   cursor: pointer;
-  -webkit-transform: scale(1.05);
-  -ms-transform: scale(1.05);
-  transform: scale(1.05);
 }
 
 .btn:active {
@@ -146,12 +141,14 @@ html {
   transform: scale(0.95);
 }
 
-.operator,
-.percentage,
+.digit,
 .decimal,
-.pos-neg,
-.theme,
-.history {
+.pos-neg {
+  background-color: var(--secondary-bg);
+}
+
+.operator,
+.percentage {
   background-color: var(--tertiary-bg);
 }
 
@@ -170,6 +167,11 @@ html {
 .backspace {
   background-color: var(--delete-bg);
   color: var(--secondary-font);
+}
+
+.theme,
+.history {
+  background-color: var(--main-bg);
 }
 
 .theme {
