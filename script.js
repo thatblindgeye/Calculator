@@ -42,26 +42,30 @@ function inputNumber(e) {
   resizeFont();
 }
 
-// assigns operands depending on whether operator is pressed or =/Enter is
 function checkOperands(e) {
   if (result.toString().includes("ERROR") || display.value === "") return;
+  // if an operator button is pressed
   if (e.target.textContent !== "=" && e.key !== "Enter") {
     // stringing operations without pressing =/Enter, i.e. 1 + 2 + 3...
     if (operandA && active) {
       operandB = display.value;
       operate();
       checkResult();
-      operandA = result;
-      result = "";
+      // prevents stringing operations when an error occurs
+      if (!result.toString().includes("ERROR")) {
+        operandA = result;
+        result = "";
+      }
     } else {
         operandA = display.value;
         result = "";
     }
+  // if = or Enter is pressed
   } else {
-    // after pressing =/Enter to close out an operation
+    // for new operations or after pressing =/Enter to close out an operation
     if (operandB === "" || operandA && operandB && active) {
       operandB = display.value;
-      // pressing operator key/button after having pressed =/Enter, i.e. 1 + 2 = 3 +...
+    // pressing operator after having pressed =/Enter, i.e. 1 + 2 = 3 +...
     } else if (operandB && active === false) {
       operandA = result;
       result = "";
@@ -73,7 +77,7 @@ function inputOperator(e) {
   let inputType;
   if (result.toString().includes("ERROR") || operandA === "" && display.value === "") return;
   inputType = e.button === 0 ? operator = e.target.textContent : operator = e.key;
-  display.value = "0";
+  display.value = "";
   active = true;
   equation.textContent = operandA + " " + operator;
 }
@@ -97,20 +101,26 @@ function operate() {
       result = "ERROR: unknown";
   }
   equation.textContent = operandA + " " + operator + " " + operandB + " =";
+  active = false;
 }
 
 function checkResult() {
-  let zeroStr = /0+(\d?)$/g;
+  let repeatStr = /(\d)\1{1,}(\d?)$/g;
   let resultArray;
   let zeroPos;
   let roundedResult;
-  if (isFinite(result) && result.toString().length > 16) {
-    result = result.toExponential(10);
+  if (result.toString().includes(".") && result.toString().length > 16) {
+    // rounds decimals with repeated digits, i.e. 1.20 instead of 1.200000004;
+    if (result.toString().match(repeatStr)) {
+      result = result.toFixed(2);
+    } else {
+      result = result.toExponential(10);
+    }
   }
-  // remove trailing 0s in exponentials, i.e. 1.23e instead of 1.230000e or 1.230001e
+  // remove repeated digits in exponentials, i.e. 1.23e instead of 1.230000e or 1.2399991e
   if (isFinite(result) && result.toString().includes("e")) {
     resultArray = result.toString().split("e");
-    zeroPos = resultArray[0].search(zeroStr);
+    zeroPos = resultArray[0].search(repeatStr);
     if (zeroPos !== -1) {
       roundedResult = resultArray[0].slice(0, zeroPos);
       result = roundedResult + "e" + resultArray[1];
@@ -124,7 +134,7 @@ function checkResult() {
 }
 
 function clearAll() {
-  display.value = "0";
+  display.value = "";
   equation.textContent = "";
   operandA = "";
   operandB = "";
@@ -144,7 +154,6 @@ function backspace() {
 }
 
 function makePercent() {
-  if (result.toString().includes("ERROR") || !display.value) return;
   operandA = display.value;
   operator = "%";
   operandB = "";
@@ -238,7 +247,6 @@ document.querySelector(".equal").addEventListener("click", (e) => {
   checkOperands(e);
   operate();
   checkResult();
-  active = false;
 })
 window.addEventListener("keydown", (e) => {
   if (e.key === "Enter") {
@@ -247,7 +255,6 @@ window.addEventListener("keydown", (e) => {
     checkOperands(e);
     operate();
     checkResult();
-    active = false;
   }
 })
 
@@ -266,6 +273,25 @@ window.addEventListener("keydown", (e) => {
   }
 })
 
+document.querySelector(".percentage").addEventListener("click", (e) => {
+  if (result.toString().includes("ERROR") || display.value === "") return;
+  if (operandA && operator && display.value) {
+    checkOperands(e);
+  }
+  makePercent();
+  operator = "";
+})
+window.addEventListener("keydown", (e) => {
+  if (e.key === "%") {
+    if (result.toString().includes("ERROR") || display.value === "") return;
+    if (operandA && operator && display.value) {
+      checkOperands(e);
+    }
+    makePercent();
+    operator = "";
+  }
+})
+
 document.querySelector(".pos-neg").addEventListener("click", toggleNegative)
 window.addEventListener("keydown", (e) => {
   if (e.key === "n" || e.key === "N") {
@@ -277,23 +303,6 @@ document.querySelector(".decimal").addEventListener("click", addDecimal)
 window.addEventListener("keydown", (e) => {
   if (e.key === ".") {
     addDecimal();
-  }
-})
-
-document.querySelector(".percentage").addEventListener("click", (e) => {
-  if (operandA && operator && display.value) {
-    checkOperands(e);
-  }
-  makePercent();
-  operator = "";
-})
-window.addEventListener("keydown", (e) => {
-  if (e.key === "%") {
-    if (operandA && operator && display.value) {
-      checkOperands(e);
-    }
-    makePercent();
-    operator = "";
   }
 })
 
