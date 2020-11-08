@@ -19,7 +19,7 @@ function subtract(operator, num1, num2) {
 
 function divide(operator, num1, num2) {
   if (num2 === "0") {
-    return "ERROR: division by zero";
+    return "ERROR: cannot divide by 0";
   } else {
     return parseFloat(num1) / parseFloat(num2);
   }
@@ -29,49 +29,11 @@ function multiply(operator, num1, num2) {
   return parseFloat(num1) * parseFloat(num2);
 }
 
-function resizeFont() {
-  let size = 2.5;
-  let defaultWidth = document.querySelector(".display-container").scrollWidth;
-  display.style.fontSize = (`${size}` + "rem").toString()
-  while (display.scrollWidth > defaultWidth) {
-    size = (size - 0.1).toFixed(2);
-    display.style.fontSize = (`${size}` + "rem").toString()
-  }
-}
-
-function toggleHistory() {
-  if (document.getElementById("history-container").style.display === "flex") {
-    document.getElementById("history-container").style.display = "none";
-    document.querySelector(".history").innerHTML = "History";
-    document.querySelector(".history").blur();
-  } else {
-    document.getElementById("history-container").style.display = "flex";
-    document.querySelector(".history").innerHTML = "Close";
-    document.querySelector(".history").focus();
-  }
-}
-
-function addHistory() {
-  let historyItems = document.getElementsByClassName("history-item");
-  let historyList = document.querySelector(".history-list");
-  let newHistory = document.createElement("p");
-  newHistory.className = "history-item";
-  newHistory.textContent = operandA + " " + operator + " " + operandB + " = " + result;
-  if (historyItems.length === 0) {
-    historyList.appendChild(newHistory);
-  } else if (historyItems.length < 20) {
-    historyList.insertBefore(newHistory, historyItems[0]);
-  } else {
-    historyList.removeChild(historyList.childNodes[20]);
-    historyList.insertBefore(newHistory, historyItems[0]);
-  }
-}
-
 function inputNumber(e) {
   let inputType;
-  // clears after pressing =/Enter followed by a digit
+  // clears if a digit is inputted after pressing =/Enter
   if (active === false && result !== "") clearAll();
-  if (display.value.replace(".", "").length < 15) {
+  if (display.value.replace(".", "").length < 16) {
     inputType = e.button === 0 ? display.value += e.target.textContent : display.value += e.key;
   }
   if (display.value.startsWith("0") && !display.value.includes(".") && display.value.length > 1) {
@@ -80,7 +42,7 @@ function inputNumber(e) {
   resizeFont();
 }
 
-// assigns operands depending on whether operator button/key is pressed or =/Enter is
+// assigns operands depending on whether operator is pressed or =/Enter is
 function checkOperands(e) {
   if (result.toString().includes("ERROR") || display.value === "") return;
   if (e.target.textContent !== "=" && e.key !== "Enter") {
@@ -96,7 +58,7 @@ function checkOperands(e) {
         result = "";
     }
   } else {
-    // new operation or after pressing  =/Enter following strung operations, i.e. 1 + 2 + 3 =...
+    // after pressing =/Enter to close out an operation
     if (operandB === "" || operandA && operandB && active) {
       operandB = display.value;
       // pressing operator key/button after having pressed =/Enter, i.e. 1 + 2 = 3 +...
@@ -111,7 +73,7 @@ function inputOperator(e) {
   let inputType;
   if (result.toString().includes("ERROR") || operandA === "" && display.value === "") return;
   inputType = e.button === 0 ? operator = e.target.textContent : operator = e.key;
-  display.value = "";
+  display.value = "0";
   active = true;
   equation.textContent = operandA + " " + operator;
 }
@@ -138,16 +100,24 @@ function operate() {
 }
 
 function checkResult() {
+  let zeroStr = /0+(\d?)$/g;
   let resultArray;
+  let zeroPos;
   let roundedResult;
   if (isFinite(result) && result.toString().length > 16) {
-    result = result.toExponential();
+    result = result.toExponential(10);
   }
+  // remove trailing 0s in exponentials, i.e. 1.23e instead of 1.230000e or 1.230001e
   if (isFinite(result) && result.toString().includes("e")) {
     resultArray = result.toString().split("e");
-    roundedResult = parseFloat(Number(resultArray[0]).toFixed(10));
-    result = roundedResult + "e" + resultArray[1];
-  } 
+    zeroPos = resultArray[0].search(zeroStr);
+    if (zeroPos !== -1) {
+      roundedResult = resultArray[0].slice(0, zeroPos);
+      result = roundedResult + "e" + resultArray[1];
+    } else {
+      result = resultArray[0] + "e" + resultArray[1];
+    }
+  }
   display.value = result;
   resizeFont();
   addHistory();
@@ -178,21 +148,59 @@ function makePercent() {
   operandA = display.value;
   operator = "%";
   operandB = "";
-  result = parseFloat(operandA / 100);
+  result = parseFloat(operandA) / 100;
   equation.textContent = "";
   checkResult();
   resizeFont();
 }
 
 function toggleNegative() {
-  if (result.toString().includes("ERROR") || !display.value) return;
+  if (!isFinite(result) || !display.value) return;
   display.value *= -1;
 }
 
 function addDecimal() {
   if (result.toString().includes("ERROR") || !display.value || display.value.includes(".")) return;
-  if (active === false && result) clearAll();
+  if (!active && result) clearAll();
   display.value += ".";
+}
+
+function resizeFont() {
+  let size = 2.5;
+  let defaultWidth = document.querySelector(".display-container").scrollWidth;
+  display.style.fontSize = size + "rem";
+  while (display.scrollWidth > defaultWidth) {
+    size = (size - 0.1).toFixed(2);
+    display.style.fontSize = size + "rem";
+  }
+}
+
+function toggleHistory() {
+  if (document.getElementById("history-container").style.display === "flex") {
+    document.getElementById("history-container").style.display = "none";
+    document.querySelector(".history").innerHTML = "History";
+    document.querySelector(".history").blur();
+  } else {
+    document.getElementById("history-container").style.display = "flex";
+    document.querySelector(".history").innerHTML = "Close";
+    document.querySelector(".history").focus();
+  }
+}
+
+function addHistory() {
+  let historyItems = document.getElementsByClassName("history-item");
+  let historyList = document.querySelector(".history-list");
+  let newHistory = document.createElement("p");
+  newHistory.className = "history-item";
+  newHistory.textContent = operandA + " " + operator + " " + operandB + " = " + result;
+  if (historyItems.length === 0) {
+    historyList.appendChild(newHistory);
+  } else if (historyItems.length < 20) {
+    historyList.insertBefore(newHistory, historyItems[0]);
+  } else {
+    historyList.removeChild(historyList.childNodes[20]);
+    historyList.insertBefore(newHistory, historyItems[0]);
+  }
 }
 
 function toggleTheme() {
@@ -305,6 +313,6 @@ window.addEventListener("keydown", (e) => {
 
 document.querySelector("a").addEventListener("keydown", (e) => {
     if (e.ctrlKey && e.key === "Enter") {
-        window.open(e.target.href, "_self");
+        window.open(e.target.href, "_blank");
     }
 })
