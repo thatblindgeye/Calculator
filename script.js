@@ -109,15 +109,19 @@ function checkResult() {
   let resultArray;
   let zeroPos;
   let roundedResult;
-  if (result.toString().includes(".") && result.toString().length > 16) {
-    // rounds decimals with repeated digits, i.e. 1.20 instead of 1.200000004;
-    if (result.toString().match(repeatStr)) {
-      result = result.toFixed(2);
+  if (isFinite(result) && !result.toString().includes(".") && result.toString().length > 16) {
+    result = result.toExponential(10);
+  } else if (result.toString().includes(".") && result.toString().length > 16) {
+    // rounds decimals with repeated trailing digits, i.e. 1.20 instead of 1.20004...
+    if (!result.toString().includes("e") && result.toString().match(repeatStr)) {
+      roundedResult = result.toFixed(2);
+      roundedResult.toString().endsWith(".00") ? result = Math.round(roundedResult) : result = roundedResult;
+    // ...or creates an exponential if no repeated trailing digits exist
     } else {
       result = result.toExponential(10);
     }
   }
-  // remove repeated digits in exponentials, i.e. 1.23e instead of 1.230000e or 1.2399991e
+  // remove repeated trailing digits in exponentials, i.e. 1.23e instead of 1.23000e or 1.239991e
   if (isFinite(result) && result.toString().includes("e")) {
     resultArray = result.toString().split("e");
     zeroPos = resultArray[0].search(repeatStr);
@@ -145,11 +149,7 @@ function clearAll() {
 
 function backspace() {
   if (result) return;
-  if (display.value.length === 1) {
-    display.value = "0";
-  } else {
-    display.value = display.value.slice(0, (display.value.length - 1));
-  }
+  display.value = display.value.slice(0, (display.value.length - 1));
   resizeFont();
 }
 
@@ -169,9 +169,9 @@ function toggleNegative() {
 }
 
 function addDecimal() {
-  if (result.toString().includes("ERROR") || !display.value || display.value.includes(".")) return;
+  if (result.toString().includes("ERROR") || display.value.includes(".")) return;
   if (!active && result) clearAll();
-  display.value += ".";
+  display.value === "" ? display.value = "0." : display.value += ".";
 }
 
 function resizeFont() {
