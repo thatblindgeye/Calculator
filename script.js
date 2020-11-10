@@ -33,7 +33,7 @@ function inputNumber(e) {
   let inputType;
   // clears if a digit is inputted after pressing =/Enter
   if (active === false && result !== "") clearAll();
-  if (display.value.replace(".", "").length < 16) {
+  if (display.value.replace(".", "").length < 15) {
     inputType = e.button === 0 ? display.value += e.target.textContent : display.value += e.key;
   }
   if (display.value.startsWith("0") && !display.value.includes(".") && display.value.length > 1) {
@@ -105,7 +105,7 @@ function operate() {
 }
 
 function checkResult() {
-  let repeatStr = /(\d)\1{1,}(\d?)$/g;
+  let repeatedStr = /(0)\1{1,}(\d?)$/g;
   let resultArray;
   let zeroPos;
   let roundedResult;
@@ -113,8 +113,8 @@ function checkResult() {
     result = result.toExponential(10);
   } else if (result.toString().includes(".") && result.toString().length > 16) {
     // rounds decimals with repeated trailing digits, i.e. 1.20 instead of 1.20004...
-    if (!result.toString().includes("e") && result.toString().match(repeatStr)) {
-      roundedResult = result.toFixed(2);
+    if (!result.toString().includes("e") && result.toString().match(repeatedStr)) {
+      roundedResult = result.toFixed(10);
       roundedResult.toString().endsWith(".00") ? result = Math.round(roundedResult) : result = roundedResult;
     // ...or creates an exponential if no repeated trailing digits exist
     } else {
@@ -124,7 +124,7 @@ function checkResult() {
   // remove repeated trailing digits in exponentials, i.e. 1.23e instead of 1.23000e or 1.239991e
   if (isFinite(result) && result.toString().includes("e")) {
     resultArray = result.toString().split("e");
-    zeroPos = resultArray[0].search(repeatStr);
+    zeroPos = resultArray[0].search(repeatedStr);
     if (zeroPos !== -1) {
       roundedResult = resultArray[0].slice(0, zeroPos);
       result = roundedResult + "e" + resultArray[1];
